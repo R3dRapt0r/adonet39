@@ -1,0 +1,71 @@
+SqlConnection cnn;
+        const string databaseconnect = "Data Source = .;" + "Initial Catalog=Agriturismo;" + "Integrated Security=SSPI;";
+        SqlCommand command;
+        public Form1()
+        {
+            InitializeComponent();
+            cnn = new SqlConnection(databaseconnect);
+            cnn.Open();
+        }
+
+        private void btnstart_Click(object sender, EventArgs e)
+        {
+            dgv1.Columns.Clear();
+            dgv1.Rows.Clear();
+
+            //add database
+
+            //string query1 = @"create database Test39";
+
+            //command = new SqlCommand(query1, cnn);
+
+            //command.ExecuteNonQuery();
+
+            ////load from input
+            string queryadd = @"insert into Posizioni (Nome, Descrizione)
+                                values (@inputvalue, @inputdescr)";
+
+            command = new SqlCommand(queryadd, cnn);
+
+            command.Parameters.AddWithValue("inputvalue", txt2.Text);
+
+            command.Parameters.AddWithValue("inputdescr", txt3.Text);
+
+            command.ExecuteNonQuery();
+
+
+            //load from database to dgv
+            string queryload = @"select * from Posizioni";
+
+            command = new SqlCommand(queryload, cnn);
+
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    dgv1.Columns.Add(reader.GetName(i), reader.GetName(i));
+                }
+                while (reader.Read())
+                {
+                    object[] colums = new object[reader.FieldCount];
+                    reader.GetValues(colums);
+                    dgv1.Rows.Add(colums);
+                }
+            }
+
+          
+        }
+
+        //scalar
+        private void btnscalar_Click(object sender, EventArgs e)
+        {
+            string query = @"select Descrizione from Posizioni p
+            Where Nome = @nomeinserito";
+
+            SqlCommand command = new SqlCommand(query,cnn);
+
+            command.Parameters.AddWithValue("nomeinserito", txt2.Text);
+
+            object result = command.ExecuteScalar();
+
+            MessageBox.Show(result.ToString());
